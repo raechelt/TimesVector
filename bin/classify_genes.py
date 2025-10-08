@@ -68,10 +68,9 @@ def normalize(v):
 	return [v[i]/vmag for i in range(len(v))]
 
 def vect_mu(v_list, l):
-	v_mu=[0.0]*l
-	for v in v_list:
-		v_mu=map(sum, zip(v_mu, v))
-	return normalize(v_mu)
+	v=np.array(v_list)
+	vsum=np.ndarray.sum(v,axis=0)
+	return normalize(vsum)
 
 def getgenexpr(fname, p, tp, dt):
 	f=open(fname, "r")
@@ -136,7 +135,7 @@ def read_clusters(fname, g, pid, tpid, dep): # cluster file, gene expression fil
 		for idx, i in enumerate(pid):
 			if i not in kc[kclid].pheno:
 				kc[kclid].pheno[i]=Phenotype()
-			expr=map(float, g[gid])
+			expr=[float(i) for i in g[gid]]
 			v=expr[idx*tp:(idx*tp)+tp]
 
 			kc[kclid].pheno[i].vect.append(v)
@@ -275,7 +274,7 @@ def Rescue_test(kc, pid, p_n, t_n):
 			v=kc[k].k_gid[g]
 
 			min_dist=sys.float_info.max
-			min_k=-1
+			min_k=""
 			for k_j in sorted(kc,key=int):
 				if kc[k_j].type == "NEP": continue
 				dist=distance.cosine(kc[k_j].k_skmeans_cent, v)
@@ -284,7 +283,7 @@ def Rescue_test(kc, pid, p_n, t_n):
 					min_dist=dist
 					min_k=k_j
 
-			if min_k > -1:
+			if min_k != "":
 				rg.add(g)
 
 				kc[min_k].k_gid[g]=kc[k].k_gid[g]
@@ -446,16 +445,18 @@ def results_to_file(kc, path, pids, tps, cv, ge, dt, ge_f):
 	depg_f=open("%s/DEP_genes.dat"%(path), "w")					# DEP gene output file
 	depc_plot_f=open("%s/plots/DEP_clusters_plot.dat"%(path), "w")	# DEP cluster output file for plotting
 	depg_plot_f=open("%s/plots/DEP_genes_plot.dat"%(path), "w")		# DEP gene output file
+	depg_norm_plot_f=open("%s/plots/DEP_genes_norm_plot.dat"%(path), "w")	# DEP gene normalized output file
 
 	sepc_f=open("%s/SEP_clusters.dat"%(path), "w")				# SEP cluster output file
 	sepg_f=open("%s/SEP_genes.dat"%(path), "w")					# SEP gene file
 	sepc_plot_f=open("%s/plots/SEP_clusters_plot.dat"%(path), "w")	# SEP cluster output file
 	sepg_plot_f=open("%s/plots/SEP_genes_plot.dat"%(path), "w")		# SEP gene file
-
+	sepg_norm_plot_f=open("%s/plots/SEP_genes_norm_plot.dat"%(path), "w")	# SEP gene normalized file
+	
 	cluster_files={"DEP":depc_f, "SEP":sepc_f}
 	gene_files={"DEP":depg_f, "SEP":sepg_f}
 	cluster_plot_files={"DEP":depc_plot_f, "SEP":sepc_plot_f}
-	gene_plot_files={"DEP":depg_plot_f, "SEP":sepg_plot_f}
+	gene_plot_files={"DEP":depg_plot_f, "SEP":sepg_plot_f, "DEP_norm":depg_norm_plot_f, "SEP_norm":sepg_norm_plot_f}
 
 	# writing headers
 	for f in cluster_plot_files:
@@ -497,6 +498,7 @@ def results_to_file(kc, path, pids, tps, cv, ge, dt, ge_f):
 
 			# writing gene plotting data
 			for g in kc[k].pheno[p].gid:
+				ge_norm=normalize(ge[g])
 				for expr_idx in range(pidx*len(tps), (pidx*len(tps))+len(tps)):
 					tidx=expr_idx%len(tps)
 					tid=tps[tidx]
@@ -504,10 +506,12 @@ def results_to_file(kc, path, pids, tps, cv, ge, dt, ge_f):
 					gidx=kc[k].pheno[p].gid.index(g)
 
 					gene_plot_files[kc[k].type].write("%s_%s\t%s\t%s\t%s\t%f\t%s\n"%(g, p, k, p, tid, ge[g][expr_idx], kc[k].sub_type))
+					normtupe="%s_norm"%(kc[k].type)
+					gene_plot_files[normtype].write("%s_%s\t%s\t%s\t%s\t%f\t%s\n"%(g, p, k, p, tid, ge_norm[expr_idx], kc[k].sub_type))
 
 
 	# closing files
-	for f in cluster_files.values()+gene_files.values()+cluster_plot_files.values()+gene_plot_files.values():
+	for f in list(cluster_files.values()) + list(gene_files.values()) + list (cluster_plot_files.values()) + list(gene_plot_files.values()):
 		f.close()
 
 

@@ -42,10 +42,9 @@ def normalize(v):
 	return [v[i]/vmag for i in range(len(v))]
 
 def vect_mu(v_list, l):
-	v_mu=[0.0]*l
-	for v in v_list:
-		v_mu=map(sum, zip(v_mu, v))
-	return normalize(v_mu)
+	v=np.array(v_list)
+	vsum=np.ndarray.sum(v, axis=0)
+	return normalize(vsum)
 
 def getgenexpr(fname):
 	f=open(fname, "r")
@@ -55,8 +54,9 @@ def getgenexpr(fname):
 		if lidx==0: continue
 		tok=line.strip().split()
 		gid=tok[0]
-		expr=map(float,tok[1:])
-		expr=[x+1.0 for x in expr]
+		# expr=map(float,tok[1:])
+		# expr=[x+1.0 for x in expr]
+		expr=[float(x)+1.0 for x in tok[1:]]
 		profile="dummy"
 
 		dict[gid]=[expr, profile]
@@ -83,7 +83,8 @@ def read_clusters(fname, g, p, tp): # cluster file, gene expression file, phenot
 				kc[kclid].pheno[i]=Phenotype()
 
 			# build centroid per phenotype 
-			expr=map(float, g[gid][0])
+			# expr=map(float, g[gid][0])
+			expr=[float(x) for x in g[gid][0]]
 			v=normalize(expr[i*tp:(i*tp)+tp])
 			kc[kclid].pheno[i].vect.append(v)
 	f.close()
@@ -139,6 +140,8 @@ fname=sys.argv[2]
 outdir=sys.argv[3]
 pheno=int(sys.argv[4])
 tp=int(sys.argv[5])
+
+
 
 gene_expr_dict=getgenexpr(expr_f)
 clusters=read_clusters(fname, gene_expr_dict, pheno, tp) 

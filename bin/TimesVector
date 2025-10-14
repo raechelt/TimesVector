@@ -131,7 +131,7 @@ fi
 #
 echo "generating input data..."
 mkdir $outdir/metadata 2>/dev/null
-python $TIMESVECTOR/calc_clustqual.py $g_expr_f $skmeans_out_f $outdir $pheno $tp
+python3.7 $TIMESVECTOR/calc_clustqual.py $g_expr_f $skmeans_out_f $outdir $pheno $tp
 
 
 #################################

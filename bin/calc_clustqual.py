@@ -18,6 +18,7 @@
 
 import sys
 import math
+
 from scipy.spatial import distance
 import numpy as np
 
@@ -43,7 +44,7 @@ def normalize(v):
 
 def vect_mu(v_list, l):
 	v=np.array(v_list)
-	vsum=np.ndarray.sum(v, axis=0)
+	vsum=np.ndarray.sum(v,axis=0)
 	return normalize(vsum)
 
 def getgenexpr(fname):

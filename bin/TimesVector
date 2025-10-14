@@ -97,7 +97,7 @@ mkdir $outdir 2>/dev/null
 skmeans_out_f=$outdir/K$k.cluster
 
 echo ""
-echo "TimesVector v1.0"
+echo "TimesVector v1.5"
 echo ""
 echo "------------------------------------------------------"
 echo "[Configurations]"
@@ -111,7 +111,6 @@ cat $outdir/clust.params
 echo "------------------------------------------------------"
 echo ""
 
-
 #################################
 #
 # 1) Perform Spherical K-means clustering
@@ -120,10 +119,9 @@ echo "running skmeans... K=$k"
 Rscript $TIMESVECTOR/run_skmeans.R $PWD/$g_expr_f $k $outdir
 
 if [ ! -f $skmeans_out_f ]; then
-    echo -e "\n[ERROR] skmeans cluster result file \"$skmeans_out_f\" does note exit. Please check if skmeans has run successfully."
+    echo -e "\n[ERROR] skmeans cluster result file \"$skmeans_out_f\" doe note exit. Please check if skmeans has run successfully."
 	exit -1
 fi
-
 
 #################################
 #
@@ -148,6 +146,7 @@ do
 done
 
 
+
 #################################
 #
 # 4) Classifying clusters
@@ -162,5 +161,4 @@ python3.7 $TIMESVECTOR/classify_genes.py $g_expr_f $skmeans_out_f $outdir $pheno
 #
 # 5) Plotting clusters and genes
 #
-echo "plotting clusters and genes..."
 python3.7 $TIMESVECTOR/plot_clusters.py $outdir

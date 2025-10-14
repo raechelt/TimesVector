@@ -88,8 +88,9 @@ def rand_permut(clsList, bin_num):
 	
 	ranks = []
 	for i in range(len(clsList)):
-		r = (i / bin_num) + 1
+		r = (i // bin_num) + 1
 		ranks.append(r)
+
 
 	res = []
 	for i in range(1000):

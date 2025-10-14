@@ -72,6 +72,7 @@ def vect_mu(v_list, l):
 	vsum=np.ndarray.sum(v,axis=0)
 	return normalize(vsum)
 
+
 def getgenexpr(fname, p, tp, dt):
 	f=open(fname, "r")
 	p_list=[]
@@ -87,8 +88,8 @@ def getgenexpr(fname, p, tp, dt):
 			tok=line.strip().split("\t")
 			for i in tok[1:p*tp]:
 				pid, tid=i.split("_")
-				p_list.append(pid)
-				tp_list.append(tid)
+				p_list.append(pid.strip())
+				tp_list.append(tid.strip())
 			continue
 		tok=line.strip().split("\t")
 		gid=tok[0]
@@ -203,7 +204,7 @@ def ODEP_test(kc, pid):
 # The treshold for defining a constant expression pattern is given by the user.
 # By default it is set to 1.5 fold.
 def CEP_test(kc, pid, p_n, t_n):
-	fc_cut=1.5
+	fc_cut=1.9
 	cep_counter=0
 	cep_gene_counter=0
 	for k in sorted(kc,key=int):
@@ -231,12 +232,13 @@ def SEP_test(kc, pid, p_n, t_n):
 		if kc[k].type != "NEP": continue
 		cdist=[]
 		for p in pid:
-			for gidx, gid in enumerate(kc[k].pheno[p].gid):
+			for gidx, gid in enumerate(kc[k].pheno[p].gid):								
 				if gid not in gene_pool:
 					gene_pool[gid]=Gene(gid)
 				v=kc[k].pheno[p].vect[gidx]
 				gene_pool[gid].pheno[p]=v
 				dist=distance.cosine(kc[k].k_cent, v)
+				
 				cdist.append(dist)
 				cos_dists.append(dist)
 
@@ -407,18 +409,15 @@ def print_cluster(kc):
 		cls[kc[k].type]+=len(k_gids)
 
 	for c in cls:
-		print c, cls[c], len(gids)
+		print(c, cls[c], len(gids))
 
 def get_minmax(kc):
 	vs=[]
 	for k in kc:
-
 		for v in kc[k].k_skmeans_cent:
 			vs.append(v)
-
 	min_v=min(vs)
 	max_v=max(vs)
-	
 	return [min_v, max_v]
 
 def results_to_file(kc, path, pids, tps, cv, ge, dt, ge_f):
@@ -445,14 +444,15 @@ def results_to_file(kc, path, pids, tps, cv, ge, dt, ge_f):
 	depg_f=open("%s/DEP_genes.dat"%(path), "w")					# DEP gene output file
 	depc_plot_f=open("%s/plots/DEP_clusters_plot.dat"%(path), "w")	# DEP cluster output file for plotting
 	depg_plot_f=open("%s/plots/DEP_genes_plot.dat"%(path), "w")		# DEP gene output file
-	depg_norm_plot_f=open("%s/plots/DEP_genes_norm_plot.dat"%(path), "w")	# DEP gene normalized output file
+	depg_norm_plot_f=open("%s/plots/DEP_genes_norm_plot.dat"%(path), "w")		# DEP gene normalized output file
+
 
 	sepc_f=open("%s/SEP_clusters.dat"%(path), "w")				# SEP cluster output file
 	sepg_f=open("%s/SEP_genes.dat"%(path), "w")					# SEP gene file
 	sepc_plot_f=open("%s/plots/SEP_clusters_plot.dat"%(path), "w")	# SEP cluster output file
 	sepg_plot_f=open("%s/plots/SEP_genes_plot.dat"%(path), "w")		# SEP gene file
-	sepg_norm_plot_f=open("%s/plots/SEP_genes_norm_plot.dat"%(path), "w")	# SEP gene normalized file
-	
+	sepg_norm_plot_f=open("%s/plots/SEP_genes_norm_plot.dat"%(path), "w")		# SEP gene normalized file
+
 	cluster_files={"DEP":depc_f, "SEP":sepc_f}
 	gene_files={"DEP":depg_f, "SEP":sepg_f}
 	cluster_plot_files={"DEP":depc_plot_f, "SEP":sepc_plot_f}
@@ -466,7 +466,7 @@ def results_to_file(kc, path, pids, tps, cv, ge, dt, ge_f):
 
 	for f in cluster_files:
 		cluster_files[f].write("Clid\tType\tGeneCount\tP-value\n")
-	for f in gene_plot_files:
+	for f in gene_files:
 		gene_files[f].write("GeneID\tClid\tType\n")
 
 	for k in sorted(kc, key=int):
@@ -506,12 +506,13 @@ def results_to_file(kc, path, pids, tps, cv, ge, dt, ge_f):
 					gidx=kc[k].pheno[p].gid.index(g)
 
 					gene_plot_files[kc[k].type].write("%s_%s\t%s\t%s\t%s\t%f\t%s\n"%(g, p, k, p, tid, ge[g][expr_idx], kc[k].sub_type))
-					normtupe="%s_norm"%(kc[k].type)
+
+					normtype="%s_norm"%(kc[k].type)
 					gene_plot_files[normtype].write("%s_%s\t%s\t%s\t%s\t%f\t%s\n"%(g, p, k, p, tid, ge_norm[expr_idx], kc[k].sub_type))
 
 
 	# closing files
-	for f in list(cluster_files.values()) + list(gene_files.values()) + list (cluster_plot_files.values()) + list(gene_plot_files.values()):
+	for f in list(cluster_files.values())+list(gene_files.values())+list(cluster_plot_files.values())+list(gene_plot_files.values()):
 		f.close()
 
 
@@ -542,7 +543,3 @@ def main():
 
 if __name__=="__main__":
 	main()
-
-
-
-

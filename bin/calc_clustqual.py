@@ -19,7 +19,7 @@
 import sys
 import math
 from scipy.spatial import distance
-import numpy
+import numpy as np
 
 class Cluster(object):
 	def __init__(self, id, p, tp):

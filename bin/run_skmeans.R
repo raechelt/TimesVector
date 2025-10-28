@@ -23,7 +23,7 @@ k=strtoi(args[7])
 outdir=args[8]
 #opsional
 init_file <- if (length(args) >= 9) args[9] else NA
-
+#
   
 gene_expr<-read.table(fname, header=TRUE)
 rownames(gene_expr)=gene_expr[,1]
@@ -39,23 +39,43 @@ cl<-skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
 cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1,
               control=list(init=init_cent))
 
+# --- Cek apakah ada file inisialisasi custom ---
 if (!is.na(init_file) && file.exists(init_file)) {
-    cat("Using custom init centroids from:", init_file, "\n")
-    init_cent <- as.matrix(read.table(init_file))
-    if (ncol(init_cent) != ncol(gene_exprmat))
-        stop("dimensi centroid tidak cocok!")
-    cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1,
-                  control=list(init=init_cent))
+  cat("🟢 Using custom initial centroids from:", init_file, "\n")
+  init_cent <- as.matrix(read.table(init_file))
+  
+  if (ncol(init_cent) != ncol(gene_exprmat)) {
+    stop("❌ Dimension mismatch between init centroid and expression matrix!")
+  }
+  
+  # Jalankan spherical k-means dengan init custom
+  cl <- skmeans(gene_exprmat, k, method = "genetic", m = 1, weights = 1,
+                control = list(init = init_cent))
+  
+  # Simpan inisialisasi yang dipakai
+  write.table(init_cent,
+              file = file.path(outdir, paste0("K", k, ".used_initial_prototype")),
+              sep = "\t", quote = FALSE, col.names = FALSE)
 } else {
-    cat("No custom init provided. Using internal initialization.\n")
-    cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
+  cat("🟡 No custom init file provided — using default random/genetic initialization.\n")
+  cl <- skmeans(gene_exprmat, k, method = "genetic", m = 1, weights = 1)
 }
+#
 
 # simpan ke file kalau mau lihat nanti
 write.table(init_cent,
             file=paste(outdir, "/K", k, ".initial_prototype", sep=""),
             sep="\t", quote=FALSE)
-
+#
 
 write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE)
 write.table(cl$prototypes, file=outprototype, sep="\t", quote=FALSE)
+
+#
+cat("✅ Done! Saved to:\n")
+cat("   ", outclust, "\n")
+cat("   ", outproto, "\n")
+if (!is.na(init_file) && file.exists(init_file)) {
+  cat("   ", file.path(outdir, paste0("K", k, ".used_initial_prototype")), "\n")
+}
+#

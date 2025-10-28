@@ -18,6 +18,9 @@
 
 args<-commandArgs()
 library(skmeans)
+set.seed(42)
+#generate intial centers
+init_cent <- gene_exprmat[sample(1:nrow(gene_exprmat), k), ]
 fname=args[6]
 k=strtoi(args[7])
 outdir=args[8]
@@ -29,5 +32,13 @@ gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 outclust=paste(outdir, "/K", k, ".cluster", sep="")
 outprototype=paste(outdir, "/K", k, ".prototype", sep="")
 cl<-skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
+# pakai inisialisasi ini untuk skmeans
+cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1,
+              control=list(init=init_cent))
+
+# simpan ke file kalau mau lihat nanti
+write.table(init_cent,
+            file=paste(outdir, "/K", k, ".initial_prototype", sep=""),
+            sep="\t", quote=FALSE)
 write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE)
 write.table(cl$prototypes, file=outprototype, sep="\t", quote=FALSE)

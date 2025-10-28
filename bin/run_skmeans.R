@@ -16,62 +16,18 @@
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-args <- commandArgs()
+args<-commandArgs()
 library(skmeans)
+fname=args[6]
+k=strtoi(args[7])
+outdir=args[8]
+gene_expr<-read.table(fname, header=TRUE)
 
-# --- Deteksi otomatis posisi argumen ---
-if (length(args) >= 8) {
-  # kalau dipanggil dari Python (TimesVector)
-  fname <- args[6]
-  k <- as.integer(args[7])
-  outdir <- args[8]
-  init_file <- if (length(args) >= 9) args[9] else NA
-} else {
-  # kalau dipanggil langsung (Colab / manual)
-  fname <- args[1]
-  k <- as.integer(args[2])
-  outdir <- args[3]
-  init_file <- if (length(args) >= 4) args[4] else NA
-}
+rownames(gene_expr)=gene_expr[,1]
+gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
-cat("📁 Expression file:", fname, "\n")
-cat("🔢 K =", k, "\n")
-cat("💾 Output dir:", outdir, "\n")
-
-# --- Baca data ekspresi ---
-gene_expr <- read.table(fname, header = TRUE)
-rownames(gene_expr) <- gene_expr[,1]
-gene_exprmat <- as.matrix(gene_expr[, -1])
-
-# --- Nama file output ---
-outclust <- file.path(outdir, paste0("K", k, ".cluster"))
-outproto <- file.path(outdir, paste0("K", k, ".prototype"))
-
-# --- Jika ada file init custom ---
-if (!is.na(init_file) && file.exists(init_file)) {
-  cat("🟢 Using custom initial centroids from:", init_file, "\n")
-  init_cent <- as.matrix(read.table(init_file))
-  if (ncol(init_cent) != ncol(gene_exprmat))
-    stop("❌ Dimension mismatch between init centroid and expression matrix!")
-
-  cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1,
-                control=list(init=init_cent))
-  write.table(init_cent,
-              file=file.path(outdir, paste0("K", k, ".used_initial_prototype")),
-              sep="\t", quote=FALSE, col.names=FALSE)
-} else {
-  cat("🟡 No init file provided. Using default initialization.\n")
-  cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
-}
-
-# --- Simpan hasil ---
-write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE, col.names=FALSE)
-write.table(cl$prototypes, file=outproto, sep="\t", quote=FALSE, col.names=FALSE)
-
-cat("\n✅ Done!\n")
-cat("   Saved cluster assignment →", outclust, "\n")
-cat("   Saved final centroids     →", outproto, "\n")
-if (!is.na(init_file) && file.exists(init_file)) {
-  cat("   Saved used init centroids →",
-      file.path(outdir, paste0("K", k, ".used_initial_prototype")), "\n")
-}
+outclust=paste(outdir, "/K", k, ".cluster", sep="")
+outprototype=paste(outdir, "/K", k, ".prototype", sep="")
+cl<-skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
+write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE)
+write.table(cl$prototypes, file=outprototype, sep="\t", quote=FALSE)

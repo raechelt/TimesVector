@@ -18,6 +18,7 @@
 
 args<-commandArgs()
 library(skmeans)
+set.seed(42)
 fname=args[6]
 k=strtoi(args[7])
 outdir=args[8]

@@ -27,13 +27,12 @@ fname=args[6]
 k=strtoi(args[7])
 outdir=args[8]
 gene_expr<-read.table(fname, header=TRUE)
+rownames(gene_expr)=gene_expr[,1]
+gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
 # generate initial centers dari data
 init_cent <- gene_exprmat[sample(1:nrow(gene_exprmat), k), ]
 #
-
-rownames(gene_expr)=gene_expr[,1]
-gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
 outclust=paste(outdir, "/K", k, ".cluster", sep="")
 outprototype=paste(outdir, "/K", k, ".prototype", sep="")

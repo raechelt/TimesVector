@@ -18,17 +18,20 @@
 
 args<-commandArgs()
 library(skmeans)
-set.seed(42)
 fname=args[6]
 k=strtoi(args[7])
 outdir=args[8]
-gene_expr<-read.table(fname, header=TRUE)
+#opsional
+init_file <- if (length(args) >= 9) args[9] else NA
 
+  
+gene_expr<-read.table(fname, header=TRUE)
 rownames(gene_expr)=gene_expr[,1]
 gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
 outclust=paste(outdir, "/K", k, ".cluster", sep="")
 outprototype=paste(outdir, "/K", k, ".prototype", sep="")
+
 #generate intial centers
 init_cent <- gene_exprmat[sample(1:nrow(gene_exprmat), k), ]
 cl<-skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
@@ -36,9 +39,23 @@ cl<-skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
 cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1,
               control=list(init=init_cent))
 
+if (!is.na(init_file) && file.exists(init_file)) {
+    cat("Using custom init centroids from:", init_file, "\n")
+    init_cent <- as.matrix(read.table(init_file))
+    if (ncol(init_cent) != ncol(gene_exprmat))
+        stop("dimensi centroid tidak cocok!")
+    cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1,
+                  control=list(init=init_cent))
+} else {
+    cat("No custom init provided. Using internal initialization.\n")
+    cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
+}
+
 # simpan ke file kalau mau lihat nanti
 write.table(init_cent,
             file=paste(outdir, "/K", k, ".initial_prototype", sep=""),
             sep="\t", quote=FALSE)
+
+
 write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE)
 write.table(cl$prototypes, file=outprototype, sep="\t", quote=FALSE)

@@ -31,7 +31,9 @@ rownames(gene_expr)=gene_expr[,1]
 gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
 # generate initial centers dari data
-init_cent <- gene_exprmat[sample(1:nrow(gene_exprmat), k), ]
+init_cent <- as.matrix(read.table("/content/centroid.txt"))
+# normalisasi (opsional tapi disarankan untuk spherical)
+init_cent <- init_cent / sqrt(rowSums(init_cent^2))
 #
 
 outclust=paste(outdir, "/K", k, ".cluster", sep="")

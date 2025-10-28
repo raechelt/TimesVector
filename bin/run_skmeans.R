@@ -27,11 +27,10 @@ gene_expr<-read.table(fname, header=TRUE)
 rownames(gene_expr)=gene_expr[,1]
 gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
-#generate intial centers
-init_cent <- gene_exprmat[sample(1:nrow(gene_exprmat), k), ]
-
 outclust=paste(outdir, "/K", k, ".cluster", sep="")
 outprototype=paste(outdir, "/K", k, ".prototype", sep="")
+#generate intial centers
+init_cent <- gene_exprmat[sample(1:nrow(gene_exprmat), k), ]
 cl<-skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
 # pakai inisialisasi ini untuk skmeans
 cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1,

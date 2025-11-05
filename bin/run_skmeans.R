@@ -44,11 +44,28 @@ cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1,
               control=list(init=init_cent))
 #
 
+# RAW centroid (belum dinormalisasi)
+raw_centroids <- matrix(NA, nrow=k, ncol=ncol(gene_exprmat))
+for (i in 1:k) {
+  cluster_genes <- gene_exprmat[cl$cluster == i, , drop=FALSE]
+  if (nrow(cluster_genes) > 0) {
+    raw_centroids[i, ] <- colMeans(cluster_genes)
+  }
+}
+colnames(raw_centroids) <- colnames(gene_exprmat)
+#
+
 # simpan ke file kalau mau lihat nanti
 write.table(init_cent,
             file=paste(outdir, "/K", k, ".initial_prototype", sep=""),
             sep="\t", quote=FALSE)
 #
+# === Simpan ke file ===
+write.table(raw_centroids,
+            file=paste0(outdir, "/K", k, ".raw_centroid"),
+            sep="\t", quote=FALSE, row.names=FALSE)
+#
+
 
 write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE)
 write.table(cl$prototypes, file=outprototype, sep="\t", quote=FALSE)

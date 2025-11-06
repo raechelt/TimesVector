@@ -32,6 +32,7 @@ gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
 # generate initial centers dari data
 init_cent <- as.matrix(read.table("/content/centroid.txt"))
+
 # normalisasi (opsional tapi disarankan untuk spherical)
 init_cent <- init_cent / sqrt(rowSums(init_cent^2))
 #
@@ -40,8 +41,9 @@ outclust=paste(outdir, "/K", k, ".cluster", sep="")
 outprototype=paste(outdir, "/K", k, ".prototype", sep="")
 cl<-skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
 # pakai inisialisasi ini untuk skmeans
-cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1,
-              control=list(init=init_cent))
+cl <- skmeans(gene_exprmat, k,
+              method = "pclust",           # bukan genetic, biar nggak diacak
+              control = list(start = list(init_cent)))
 #
 
 # RAW centroid (belum dinormalisasi)

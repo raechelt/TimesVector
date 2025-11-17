@@ -31,7 +31,7 @@ rownames(gene_expr)=gene_expr[,1]
 gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
 # generate initial centers dari data -> data manual
-init_cent <- as.matrix(read.table("/content/centroid.txt", header=FALSE))
+init_cent <- as.matrix(read.table("/content/centroid.txt"))
 
 # normalisasi (opsional tapi disarankan untuk spherical) -> buat data manual 
 init_cent <- init_cent / sqrt(rowSums(init_cent^2))

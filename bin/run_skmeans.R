@@ -44,7 +44,7 @@ cl<-skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
  cl <- skmeans(gene_exprmat, k,
               method = "pclust",           # bukan genetic, biar nggak diacak
               control = list(start = list(init_cent)))
-
+#
 
 # RAW centroid (belum dinormalisasi) -> buat data manual
  raw_centroids <- matrix(NA, nrow=k, ncol=ncol(gene_exprmat))

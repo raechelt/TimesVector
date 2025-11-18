@@ -36,22 +36,29 @@ if (file.exists(centroid_file)) {
   cat("Using custom centroids from:", centroid_file, "\n")
   init_cent <- as.matrix(read.table(centroid_file, header=TRUE))
   
-  # Normalize centroids for spherical k-means
+  # Normalize centroids for spherical k-means -> data manual
   init_cent_norm <- init_cent / sqrt(rowSums(init_cent^2))
   
-  # Normalize gene data for spherical k-means
+  # Normalize gene data for spherical k-means -> data manual
   gene_exprmat_norm <- gene_exprmat / sqrt(rowSums(gene_exprmat^2))
+
+  # pakai inisialisasi ini untuk skmeans -> buat data manual
+  cl <- skmeans(gene_exprmat_norm, k,
+              method = "pclust",           # bukan genetic, biar nggak diacak
+              control = list(start = list(init_cent_norm)))
+
+  } else {
+  cat("Custom centroid file not found. Using genetic algorithm.\n")
+  # Original genetic algorithm method
+  cl <- skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
+}
 #
 
 outclust=paste(outdir, "/K", k, ".cluster", sep="")
 outprototype=paste(outdir, "/K", k, ".prototype", sep="")
-cl<-skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
+#cl<-skmeans(gene_exprmat, k, method="genetic", m=1, weights=1)
 
-# pakai inisialisasi ini untuk skmeans -> buat data manual
-cl <- skmeans(gene_exprmat_norm, k,
-              method = "pclust",           # bukan genetic, biar nggak diacak
-              control = list(start = list(init_cent_norm)))
-#
+
 
 write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE)
 write.table(cl$prototypes, file=outprototype, sep="\t", quote=FALSE)

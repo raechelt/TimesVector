@@ -34,7 +34,7 @@ gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 centroid_file <- "centroid.txt"  # Your centroid file name
 if (file.exists(centroid_file)) {
   cat("Using custom centroids from:", centroid_file, "\n")
-  init_cent <- as.matrix(read.table(centroid_file, header=TRUE))
+  init_cent <- as.matrix(read.table(centroid_file, header=FALSE))
   
   # Normalize centroids for spherical k-means -> data manual
   init_cent_norm <- init_cent / sqrt(rowSums(init_cent^2))

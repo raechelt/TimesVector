@@ -1,0 +1,164 @@
+#!/bin/bash
+
+#TimesVector
+#
+#Created by Inuk Jung on 2016-08-3.
+#Copyright (c) 2016 Inuk Jung. All rights reserved.
+#
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+## Argument parser
+usage()
+{
+cat << EOF
+usage: $0 [ h | gctdko ]
+
+This script runs TimesVector.
+
+Paramters(all mandatory):
+   -g      The path to the gene expression file
+   -c      Number of classes (INT)
+   -t      Number of time points per class (INT)
+   -d      Type of data ['m': Microarray, 'n': NGS]
+   -k      K numer of clusters (INT)
+   -o      Output directory for results
+   -h      Show this message
+EOF
+}
+
+## Setting attributes
+g_expr_f=""
+pheno=""
+tp=""
+dt=""
+k=""
+outdir=""
+while getopts “hg:c:t:d:k:o:” OPTION
+do
+     case $OPTION in
+         h)
+             usage
+             exit 1
+             ;;
+         g)
+             g_expr_f=$OPTARG
+             ;;
+         c)
+             pheno=$OPTARG
+             ;;
+         t)
+             tp=$OPTARG
+             ;;
+         d)
+             dt=$OPTARG
+             ;;
+         k)
+             k=$OPTARG
+             ;;
+         o)
+             outdir=$OPTARG
+             ;;
+         ?)
+             usage
+             exit
+             ;;
+     esac
+done
+
+if [[ -z $g_expr_f ]] || [[ -z $pheno ]] || [[ -z $tp ]] || [[ -z $dt ]] || [[ -z $k ]]
+then
+     usage
+     exit 1
+fi
+
+## Check gene expression file
+if [ ! -f $g_expr_f ]; then
+	echo "$0: ${g_expr_f} gene expression file not found" 
+	exit 1
+fi
+
+## Create output folder
+mkdir $outdir 2>/dev/null
+
+## skmeans cluster output file
+skmeans_out_f=$outdir/K$k.cluster
+
+echo ""
+echo "TimesVector v1.5"
+echo ""
+echo "------------------------------------------------------"
+echo "[Configurations]"
+echo "gene_expression_file="$g_expr_f > $outdir/clust.params
+echo "classes="$pheno >> $outdir/clust.params
+echo "timepoints="$tp >> $outdir/clust.params
+echo "data_type="$dt >> $outdir/clust.params
+echo "K="$k >> $outdir/clust.params
+
+cat $outdir/clust.params
+echo "------------------------------------------------------"
+echo ""
+
+#################################
+#
+# 1) Perform Spherical K-means clustering
+#
+echo "running skmeans... K=$k"
+Rscript $TIMESVECTOR/run_skmeans_manual.R $PWD/$g_expr_f $k $outdir
+
+if [ ! -f $skmeans_out_f ]; then
+    echo -e "\n[ERROR] skmeans cluster result file \"$skmeans_out_f\" doe note exit. Please check if skmeans has run successfully."
+	exit -1
+fi
+
+#################################
+#
+# 2) Generate input data
+#
+echo "generating input data..."
+mkdir $outdir/metadata 2>/dev/null
+python3.7 $TIMESVECTOR/calc_clustqual.py $g_expr_f $skmeans_out_f $outdir $pheno $tp
+
+
+#################################
+#
+# 3) computing mutual information scores of clusters
+#
+echo "calculating mutual information of clusters..."
+rm -rf $outdir/mi_result.txt 2>/dev/null
+for i in $(eval echo {1..$k});
+do
+	expr_f=$outdir/metadata/${i}_expr.dat
+	cond_f=$outdir/metadata/${i}_cond.dat
+	python3.7 $TIMESVECTOR/mutual_rank.py -i $expr_f -c $cond_f -n 1 >> $outdir/mi_result.txt
+done
+
+
+
+#################################
+#
+# 4) Classifying clusters
+#
+echo "classifying clusters..."
+rm -rf $outdir/plots 2>/dev/null
+mkdir $outdir/plots 2>/dev/null
+python3.7 $TIMESVECTOR/classify_genes.py $g_expr_f $skmeans_out_f $outdir $pheno $tp $dt
+
+
+#################################
+#
+# 5) Plotting clusters and genes
+#
+python3.7 $TIMESVECTOR/plot_clusters.py $outdir

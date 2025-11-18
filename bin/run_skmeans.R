@@ -26,17 +26,20 @@ set.seed(42)
 fname=args[6]
 k=strtoi(args[7])
 outdir=args[8]
-gene_expr<-read.table(fname, header=TRUE, sep="\t")
+gene_expr<-read.table(fname, header=TRUE)
 rownames(gene_expr)=gene_expr[,1]
 gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
 # AUTO-LOAD CUSTOM CENTROID FILE -> manual
 centroid_file <- "centroid.txt"  # Your centroid file name
-# Tambah newline di akhir file
-echo "" >> centroid.txt
 if (file.exists(centroid_file)) {
   cat("Using custom centroids from:", centroid_file, "\n")
+
+  #baca centroid file
   init_cent <- as.matrix(read.table(centroid_file, header=FALSE))
+
+  cat("Centroid data loaded:\n")
+  print(init_cent)
   
   # Normalize centroids for spherical k-means -> data manual
   init_cent_norm <- init_cent / sqrt(rowSums(init_cent^2))

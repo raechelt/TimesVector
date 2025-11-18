@@ -116,7 +116,7 @@ echo ""
 # 1) Perform Spherical K-means clustering
 #
 echo "running skmeans... K=$k"
-Rscript $TIMESVECTOR/run_skmeans.R $PWD/$g_expr_f $k $outdir
+Rscript $TIMESVECTOR/run_skmeans_manual.R $PWD/$g_expr_f $k $outdir
 
 if [ ! -f $skmeans_out_f ]; then
     echo -e "\n[ERROR] skmeans cluster result file \"$skmeans_out_f\" doe note exit. Please check if skmeans has run successfully."

@@ -65,8 +65,8 @@ outprototype=paste(outdir, "/K", k, ".prototype", sep="")
 
 
 
-write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE)
-write.table(cl$prototypes, file=outprototype, sep="\t", quote=FALSE)
+write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE, row.names=FALSE)
+write.table(cl$prototypes, file=outprototype, sep="\t", quote=FALSE, row.names=FALSE)
 
 # RAW centroid (belum dinormalisasi) -> buat data manual
 raw_centroids <- matrix(NA, nrow=k, ncol=ncol(gene_exprmat))

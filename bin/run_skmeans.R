@@ -30,16 +30,17 @@ gene_expr<-read.table(fname, header=TRUE, sep="\t")
 rownames(gene_expr)=gene_expr[,1]
 gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
-# generate initial centers dari data -> data manual
-init_cent <- as.matrix(read.table("/content/centroid.txt", sep="\t"))
-#
-
-# Normalize gene data too for spherical k-means -> data manual
-gene_exprmat_norm <- gene_exprmat / sqrt(rowSums(gene_exprmat^2))
-#
-
-# normalisasi (opsional tapi disarankan untuk spherical) -> buat data manual 
-init_cent_norm <- init_cent / sqrt(rowSums(init_cent^2))
+# AUTO-LOAD CUSTOM CENTROID FILE -> manual
+centroid_file <- "centroid.txt"  # Your centroid file name
+if (file.exists(centroid_file)) {
+  cat("Using custom centroids from:", centroid_file, "\n")
+  init_cent <- as.matrix(read.table(centroid_file, header=TRUE))
+  
+  # Normalize centroids for spherical k-means
+  init_cent_norm <- init_cent / sqrt(rowSums(init_cent^2))
+  
+  # Normalize gene data for spherical k-means
+  gene_exprmat_norm <- gene_exprmat / sqrt(rowSums(gene_exprmat^2))
 #
 
 outclust=paste(outdir, "/K", k, ".cluster", sep="")
@@ -52,6 +53,9 @@ cl <- skmeans(gene_exprmat_norm, k,
               control = list(start = list(init_cent_norm)))
 #
 
+write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE)
+write.table(cl$prototypes, file=outprototype, sep="\t", quote=FALSE)
+
 # RAW centroid (belum dinormalisasi) -> buat data manual
 raw_centroids <- matrix(NA, nrow=k, ncol=ncol(gene_exprmat))
  for (i in 1:k) {
@@ -62,9 +66,9 @@ raw_centroids <- matrix(NA, nrow=k, ncol=ncol(gene_exprmat))
 }
 colnames(raw_centroids) <- colnames(gene_exprmat)
 #
-
+  
 # simpan ke file kalau mau lihat nanti -> buat data manual
-write.table(init_cent_norm,
+write.table(init_cent,
             file=paste(outdir, "/K", k, ".initial_prototype", sep=""),
             sep="\t", quote=FALSE)
 
@@ -72,7 +76,5 @@ write.table(raw_centroids,
             file=paste0(outdir, "/K", k, ".raw_centroid"),
             sep="\t", quote=FALSE, row.names=FALSE)
 #
-
-
-write.table(cl$cluster, file=outclust, sep="\t", quote=FALSE)
-write.table(cl$prototypes, file=outprototype, sep="\t", quote=FALSE)
+  
+cat("Clustering completed successfully!\n")

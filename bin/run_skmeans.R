@@ -32,6 +32,8 @@ gene_exprmat=as.matrix(gene_expr[,2:ncol(gene_expr)])
 
 # AUTO-LOAD CUSTOM CENTROID FILE -> manual
 centroid_file <- "centroid.txt"  # Your centroid file name
+# Tambah newline di akhir file
+echo "" >> centroid.txt
 if (file.exists(centroid_file)) {
   cat("Using custom centroids from:", centroid_file, "\n")
   init_cent <- as.matrix(read.table(centroid_file, header=FALSE))

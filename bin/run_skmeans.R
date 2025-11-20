@@ -16,6 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#reproducible
+set.seed(42)
+
 args<-commandArgs()
 library(skmeans)
 fname=args[6]

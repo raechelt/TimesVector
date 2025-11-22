@@ -16,11 +16,15 @@
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#reproducible
-set.seed(42)
 
 args<-commandArgs()
 library(skmeans)
+
+
+#reproducible
+set.seed(42)
+#
+
 fname=args[6]
 k=strtoi(args[7])
 outdir=args[8]

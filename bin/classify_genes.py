@@ -204,7 +204,7 @@ def ODEP_test(kc, pid):
 # The treshold for defining a constant expression pattern is given by the user.
 # By default it is set to 1.5 fold.
 def CEP_test(kc, pid, p_n, t_n):
-	fc_cut=1.6
+	fc_cut=1.7
 	cep_counter=0
 	cep_gene_counter=0
 	for k in sorted(kc,key=int):

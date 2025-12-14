@@ -268,7 +268,8 @@ def SEP_test(kc, pid, p_n, t_n):
 def Rescue_test(kc, pid, p_n, t_n):
 	
 	rg=set()
-
+	rescue_results = [] #List untuk menyimpan hasil rescue
+		
 	for k in sorted(kc,key=int):
 		if kc[k].type != "NEP": continue
 
@@ -285,16 +286,27 @@ def Rescue_test(kc, pid, p_n, t_n):
 					min_dist=dist
 					min_k=k_j
 
-			if min_k != "":
-				rg.add(g) #bawaan timesvec
-				
-				
+            if min_k != "":
+                rg.add(g)
+				#batas suci
+                rescue_output.append(f"{g}\t{k}\tNEP\t{min_k}\t{kc[min_k].type}\t{min_dist:.6f}\t{kc[min_k].ml:.6f}\tRESCUED")
+            else:
+                rescue_output.append(f"{g}\t{k}\tNEP\t-\t-\t-\t-\tNOT_RESCUED")
+				#batas suci
+
+			if min_k != "": #ditambahkan lagi krn dipake sama rescue output
 				kc[min_k].k_gid[g]=kc[k].k_gid[g]
 				for pidx, p in enumerate(kc[min_k].pheno):
 					vp=v[pidx*t_n:(pidx*t_n)+t_n]
 					kc[min_k].pheno[p].vect.append(vp)
 					kc[min_k].pheno[p].gid.append(g)
 					kc[min_k].pheno[p].mag.append(magnitude(vp))
+
+    # Tulis output ke file
+    with open(f"{output_dir}/rescue_test_output.txt", "w") as f:
+        f.write("Gene\tFrom_Cluster\tFrom_Type\tTo_Cluster\tTo_Type\tDistance\tThreshold\tStatus\n")
+        for line in rescue_output:
+            f.write(line + "\n")
 
 	return kc
 

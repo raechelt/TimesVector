@@ -337,7 +337,7 @@ def classify_clusters(kc, pid, tpid, dep):
 	kc=update(kc)
 
 	# rescuing genes 
-	kc=Rescue_test(kc, pid, p, tp)
+	kc, rescue_log=Rescue_test(kc, pid, p, tp)
 	out_f = os.path.join(outdir, "rescue_result.txt")
 	with open(out_f, "w") as f:
 		f.write("Gene\tTarget_Cluster\n")

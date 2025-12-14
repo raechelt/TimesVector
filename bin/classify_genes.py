@@ -289,12 +289,19 @@ def Rescue_test(kc, pid, p_n, t_n):
             if min_k != "":
                 rg.add(g)
 				#batas suci
-                rescue_output.append(f"{g}\t{k}\tNEP\t{min_k}\t{kc[min_k].type}\t{min_dist:.6f}\t{kc[min_k].ml:.6f}\tRESCUED")
-            else:
-                rescue_output.append(f"{g}\t{k}\tNEP\t-\t-\t-\t-\tNOT_RESCUED")
+				# Simpan hasil ke list
+                rescue_results.append({
+                    'gene': g,
+                    'from_cluster': k,
+                    'from_type': 'NEP',
+                    'to_cluster': min_k,
+                    'to_type': kc[min_k].type,
+                    'distance': min_dist,
+                    'threshold': kc[min_k].ml,
+                    'status': 'RESCUED'
+                })
 				#batas suci
 
-			if min_k != "": #ditambahkan lagi krn dipake sama rescue output
 				kc[min_k].k_gid[g]=kc[k].k_gid[g]
 				for pidx, p in enumerate(kc[min_k].pheno):
 					vp=v[pidx*t_n:(pidx*t_n)+t_n]
@@ -302,11 +309,37 @@ def Rescue_test(kc, pid, p_n, t_n):
 					kc[min_k].pheno[p].gid.append(g)
 					kc[min_k].pheno[p].mag.append(magnitude(vp))
 
+#batas suci
+			else:
+                # Simpan gene yang tidak direscue
+                rescue_results.append({
+                    'gene': g,
+                    'from_cluster': k,
+                    'from_type': 'NEP',
+                    'to_cluster': '',
+                    'to_type': '',
+                    'distance': '',
+                    'threshold': '',
+                    'status': 'NOT_RESCUED'
+                })
+#batas suci
+
     # Tulis output ke file
-    with open(f"{output_dir}/rescue_test_output.txt", "w") as f:
-        f.write("Gene\tFrom_Cluster\tFrom_Type\tTo_Cluster\tTo_Type\tDistance\tThreshold\tStatus\n")
-        for line in rescue_output:
-            f.write(line + "\n")
+    try:
+        # Coba tulis di current directory
+        output_file = "rescue_test_results.txt"
+        with open(output_file, "w") as f:
+            f.write("Gene\tFrom_Cluster\tFrom_Type\tTo_Cluster\tTo_Type\tDistance\tThreshold\tStatus\n")
+            for result in rescue_results:
+                f.write(f"{result['gene']}\t{result['from_cluster']}\t{result['from_type']}\t")
+                f.write(f"{result['to_cluster']}\t{result['to_type']}\t")
+                f.write(f"{result['distance'] if result['distance'] != '' else ''}\t")
+                f.write(f"{result['threshold'] if result['threshold'] != '' else ''}\t")
+                f.write(f"{result['status']}\n")
+        print(f"Rescue test results saved to: {output_file}")
+    except Exception as e:
+        print(f"Could not write rescue results: {e}")
+#batas suci
 
 	return kc
 
@@ -323,7 +356,7 @@ def DEP_test(kc, pid, p_n, t_n, dep):
 
 	return kc
 
-def classify_clusters(kc, pid, tpid, dep, output_dir="."): #output_dir tambahan, batas suci
+def classify_clusters(kc, pid, tpid, dep):
 
 	p=len(pid)
 	tp=len(tpid)
@@ -347,7 +380,7 @@ def classify_clusters(kc, pid, tpid, dep, output_dir="."): #output_dir tambahan,
 	kc=update(kc)
 
 	# rescuing genes 
-	kc=Rescue_test(kc, pid, p, tp, output_dir) #output_dir itu tambahan, batas suci
+	kc=Rescue_test(kc, pid, p, tp) 
 
 	kc=update(kc)
 
@@ -547,7 +580,7 @@ def main():
 	clusters=read_clusters(kcluster, gene_expr_dict, phenoids, timepoints, []) 
 
 	# classify clusters further to DEP, ODDEP, ODP, SEP and NEP
-	clusters=classify_clusters(clusters, phenoids, timepoints, DEP_cls, outdir) #outdir ditambahain, batas suci
+	clusters=classify_clusters(clusters, phenoids, timepoints, DEP_cls)
 	clusters=update(clusters) # update clusters
 
 	val_range=get_minmax(clusters)

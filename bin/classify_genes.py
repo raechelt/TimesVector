@@ -268,7 +268,6 @@ def SEP_test(kc, pid, p_n, t_n):
 def Rescue_test(kc, pid, p_n, t_n):
 	
 	rg=set()
-	rescue_log = {}   # key: gen, value: cluster tujuan
 
 	for k in sorted(kc,key=int):
 		if kc[k].type != "NEP": continue
@@ -287,9 +286,10 @@ def Rescue_test(kc, pid, p_n, t_n):
 					min_k=k_j
 
 			if min_k != "":
-				print(f"[RESCUE] Gene {g} -> Cluster {min_k}")
-				rg.add(g)
-				rescue_log[g] = min_k # LOG: gen diselamatkan ke cluster mana
+				# logging pasif (tidak mengubah pipeline)
+				with open(os.path.join(outdir, "rescue_debug.txt"), "a") as f:
+					f.write(f"{g}\t{min_k}\n")
+				rg.add(g) #bawaan timesvec
 
 				kc[min_k].k_gid[g]=kc[k].k_gid[g]
 				for pidx, p in enumerate(kc[min_k].pheno):
@@ -298,7 +298,7 @@ def Rescue_test(kc, pid, p_n, t_n):
 					kc[min_k].pheno[p].gid.append(g)
 					kc[min_k].pheno[p].mag.append(magnitude(vp))
 
-	return kc, rescue_log
+	return kc
 
 def DEP_test(kc, pid, p_n, t_n, dep):
 	
@@ -337,12 +337,7 @@ def classify_clusters(kc, pid, tpid, dep):
 	kc=update(kc)
 
 	# rescuing genes 
-	kc, rescue_log=Rescue_test(kc, pid, p, tp)
-	out_f = os.path.join(outdir, "rescue_result.txt")
-	with open(out_f, "w") as f:
-		f.write("Gene\tTarget_Cluster\n")
-		for g, k in rescue_log.items():
-			f.write(f"{g}\t{k}\n")
+	kc=Rescue_test(kc, pid, p, tp)
 
 
 	kc=update(kc)

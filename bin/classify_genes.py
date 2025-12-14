@@ -547,7 +547,7 @@ def main():
 	clusters=read_clusters(kcluster, gene_expr_dict, phenoids, timepoints, []) 
 
 	# classify clusters further to DEP, ODDEP, ODP, SEP and NEP
-	clusters=classify_clusters(clusters, phenoids, timepoints, DEP_cls) 
+	clusters=classify_clusters(clusters, phenoids, timepoints, DEP_cls, outdir) #outdir ditambahain, batas suci
 	clusters=update(clusters) # update clusters
 
 	val_range=get_minmax(clusters)

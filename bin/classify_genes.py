@@ -287,6 +287,7 @@ def Rescue_test(kc, pid, p_n, t_n):
 					min_k=k_j
 
 			if min_k != "":
+				print(f"[RESCUE] Gene {g} -> Cluster {min_k}")
 				rg.add(g)
 				rescue_log[g] = min_k # LOG: gen diselamatkan ke cluster mana
 
@@ -337,6 +338,12 @@ def classify_clusters(kc, pid, tpid, dep):
 
 	# rescuing genes 
 	kc=Rescue_test(kc, pid, p, tp)
+	out_f = os.path.join(outdir, "rescue_result.txt")
+	with open(out_f, "w") as f:
+		f.write("Gene\tTarget_Cluster\n")
+		for g, k in rescue_log.items():
+			f.write(f"{g}\t{k}\n")
+
 
 	kc=update(kc)
 

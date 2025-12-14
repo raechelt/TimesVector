@@ -287,6 +287,8 @@ def Rescue_test(kc, pid, p_n, t_n):
 
 			if min_k != "":
 				rg.add(g) #bawaan timesvec
+				with open(os.path.join(outdir, "rescue_debug.txt"), "a") as f:
+					f.write(f"{g}\t{min_k}\n")
 				
 				kc[min_k].k_gid[g]=kc[k].k_gid[g]
 				for pidx, p in enumerate(kc[min_k].pheno):

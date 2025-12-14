@@ -323,7 +323,7 @@ def DEP_test(kc, pid, p_n, t_n, dep):
 
 	return kc
 
-def classify_clusters(kc, pid, tpid, dep):
+def classify_clusters(kc, pid, tpid, dep, output_dir="."): #output_dir tambahan, batas suci
 
 	p=len(pid)
 	tp=len(tpid)
@@ -347,7 +347,7 @@ def classify_clusters(kc, pid, tpid, dep):
 	kc=update(kc)
 
 	# rescuing genes 
-	kc=Rescue_test(kc, pid, p, tp)
+	kc=Rescue_test(kc, pid, p, tp, output_dir) #output_dir itu tambahan, batas suci
 
 	kc=update(kc)
 

@@ -266,8 +266,9 @@ def SEP_test(kc, pid, p_n, t_n):
 	return kc
 
 def Rescue_test(kc, pid, p_n, t_n):
-
+	
 	rg=set()
+	rescue_log = {}   # key: gen, value: cluster tujuan
 
 	for k in sorted(kc,key=int):
 		if kc[k].type != "NEP": continue
@@ -287,6 +288,7 @@ def Rescue_test(kc, pid, p_n, t_n):
 
 			if min_k != "":
 				rg.add(g)
+				rescue_log[g] = min_k # LOG: gen diselamatkan ke cluster mana
 
 				kc[min_k].k_gid[g]=kc[k].k_gid[g]
 				for pidx, p in enumerate(kc[min_k].pheno):
@@ -295,7 +297,7 @@ def Rescue_test(kc, pid, p_n, t_n):
 					kc[min_k].pheno[p].gid.append(g)
 					kc[min_k].pheno[p].mag.append(magnitude(vp))
 
-	return kc
+	return kc, rescue_log
 
 def DEP_test(kc, pid, p_n, t_n, dep):
 	

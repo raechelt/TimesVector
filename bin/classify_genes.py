@@ -286,11 +286,8 @@ def Rescue_test(kc, pid, p_n, t_n):
 					min_k=k_j
 
 			if min_k != "":
-				# logging pasif (tidak mengubah pipeline)
-				with open(os.path.join(outdir, "rescue_debug.txt"), "a") as f:
-					f.write(f"{g}\t{min_k}\n")
 				rg.add(g) #bawaan timesvec
-
+				
 				kc[min_k].k_gid[g]=kc[k].k_gid[g]
 				for pidx, p in enumerate(kc[min_k].pheno):
 					vp=v[pidx*t_n:(pidx*t_n)+t_n]
@@ -338,7 +335,6 @@ def classify_clusters(kc, pid, tpid, dep):
 
 	# rescuing genes 
 	kc=Rescue_test(kc, pid, p, tp)
-
 
 	kc=update(kc)
 

@@ -268,7 +268,6 @@ def SEP_test(kc, pid, p_n, t_n):
 def Rescue_test(kc, pid, p_n, t_n):
 	
 	rg=set()
-	rescue_results = [] #List untuk menyimpan hasil rescue
 		
 	for k in sorted(kc,key=int):
 		if kc[k].type != "NEP": continue
@@ -287,20 +286,8 @@ def Rescue_test(kc, pid, p_n, t_n):
 					min_k=k_j
 
             if min_k != "":
+				print(f"[RESCUE] Gene {g} -> Cluster {min_k}")
                 rg.add(g)
-				#batas suci
-				# Simpan hasil ke list
-                rescue_results.append({
-                    'gene': g,
-                    'from_cluster': k,
-                    'from_type': 'NEP',
-                    'to_cluster': min_k,
-                    'to_type': kc[min_k].type,
-                    'distance': min_dist,
-                    'threshold': kc[min_k].ml,
-                    'status': 'RESCUED'
-                })
-				#batas suci
 
 				kc[min_k].k_gid[g]=kc[k].k_gid[g]
 				for pidx, p in enumerate(kc[min_k].pheno):
@@ -308,38 +295,6 @@ def Rescue_test(kc, pid, p_n, t_n):
 					kc[min_k].pheno[p].vect.append(vp)
 					kc[min_k].pheno[p].gid.append(g)
 					kc[min_k].pheno[p].mag.append(magnitude(vp))
-
-#batas suci
-			else:
-                # Simpan gene yang tidak direscue
-                rescue_results.append({
-                    'gene': g,
-                    'from_cluster': k,
-                    'from_type': 'NEP',
-                    'to_cluster': '',
-                    'to_type': '',
-                    'distance': '',
-                    'threshold': '',
-                    'status': 'NOT_RESCUED'
-                })
-#batas suci
-
-    # Tulis output ke file
-    try:
-        # Coba tulis di current directory
-        output_file = "rescue_test_results.txt"
-        with open(output_file, "w") as f:
-            f.write("Gene\tFrom_Cluster\tFrom_Type\tTo_Cluster\tTo_Type\tDistance\tThreshold\tStatus\n")
-            for result in rescue_results:
-                f.write(f"{result['gene']}\t{result['from_cluster']}\t{result['from_type']}\t")
-                f.write(f"{result['to_cluster']}\t{result['to_type']}\t")
-                f.write(f"{result['distance'] if result['distance'] != '' else ''}\t")
-                f.write(f"{result['threshold'] if result['threshold'] != '' else ''}\t")
-                f.write(f"{result['status']}\n")
-        print(f"Rescue test results saved to: {output_file}")
-    except Exception as e:
-        print(f"Could not write rescue results: {e}")
-#batas suci
 
 	return kc
 

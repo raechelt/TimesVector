@@ -285,9 +285,10 @@ def Rescue_test(kc, pid, p_n, t_n):
 					min_dist=dist
 					min_k=k_j
 
-            if min_k != "":
+			if min_k != "":
 				print(f"[RESCUE] Gene {g} -> Cluster {min_k}")
-                rg.add(g)
+				
+				rg.add(g)
 
 				kc[min_k].k_gid[g]=kc[k].k_gid[g]
 				for pidx, p in enumerate(kc[min_k].pheno):
